@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./iconfont.css">
+    <title>Document</title>
+    <style>
+        #box{
+            border: 1px solid black;
+            display: flex;
+            width: 200px;
+            justify-content: center;
+        }
+        #box input{
+            text-indent: 10px;
+            line-height: 10px;
+            width: 80%;
+            border: none;
+            outline: none;
+        }
+        #box i{
+            width: 20%;
+            color: black;
+            line-height: 25px;
+        }
+        #box i:hover{
+            color: rgba(0, 0, 0, .6);
+        }
+
+
+
+        #ulist{
+            display: none;
+            width: 163px;
+            height: 120px;
+            overflow:auto;
+            background-color: aqua;
+            cursor: pointer;
+            position: absolute;
+            z-index: 100;
+        }
+        li{
+            list-style: none;
+            line-height: 30px;
+        }
+
+
+        
+    </style>
+</head>
+<body>
+     <div style="position: relative;top: 100px;left: 200px;">                    <!--实现下拉列表的大小写，中文及模糊搜索 -->
+        <div id="box">
+            <input type="text" id="input" value="">
+            <i class="icon iconfont icon-Search" id="search"></i>
+        </div>
+        <ul id="ulist"></ul>
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script src="./characterTable.js"></script>
+    <script src="./changeto.js"></script>
+    <script>
+        $(function(){ 
+            var input = $('#input')
+            var search = $('#search')
+            var box = $('#box')
+            var ulist = $('#ulist')
+            input.on('focus',function(){
+                ulist.css("display","block")
+            })
+            search.on('click',function(){
+                ulist.css("display","block")
+            })
+            document.onclick = function () {
+                ulist.css("display","none")
+            }
+            box.on('click',function(e){
+                e.stopPropagation();
+            })
+
+            var list = ['香蕉','苹果','橘子','芒果','西瓜']
+            var liNode = ''
+            var result = ''
+            var reqSpell=new RegExp('[a-zA-Z]')
+            list = list.sort(function (item1, item2) {
+                return item1.localeCompare(item2, 'zh-CN');
+            })
+            var showList = list
+            for(var item of list){
+                liNode=`<li>${item}</li>`
+                ulist.append(liNode)
+            }
+            ulist.on('click',function(e){
+                input.val(e.target.textContent)
+            })
+            input.on('input', function(e) {
+                showList = list
+                if(input.val() == false){
+                    ulist.empty()
+                    for(var item of list){
+                        liNode=`<li>${item}</li>`
+                        ulist.append(liNode)
+                    }
+                }else{
+                    var req=new RegExp(`^(${input.val().toLowerCase()})`)
+                    var reChinese = new RegExp(`${input.val()}`)
+                    var reFirstSpell = new RegExp('[a|b|c|d|e|f|g|h|j|k|l|m|n|p|q|r|s|t|w|x|y|z]', 'ig')
+                    if(reqSpell.test(e.target.value)){
+                        result = input.val()
+                        if(!result.replace(reFirstSpell,'')){
+                            let l = getPinYin(list[01],'',false).split(' ').map(item=>item[0]).join().replace(',','')
+                            showList = list.filter(value=>req.test(getPinYin(value,'',false).split(' ').map(item=>item[0]).join().replace(',','')))
+                        }else{
+                            showList = list.filter(value=>req.test(getPinYin(value,'',true).split(' ').join('')))
+                        }
+                    }else{
+                        showList = list.filter(value=>reChinese.test(value))
+                    }
+                    ulist.empty()
+                    for(var item of showList){
+                        liNode=`<li>${item}</li>`
+                        ulist.append(liNode)
+                    }
+                }
+                
+            })
+        })
+    </script>
+</body>
+</html>
